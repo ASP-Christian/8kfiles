@@ -26,12 +26,6 @@ options.add_argument("--disable-dev-shm-usage")
 options.add_argument("--no-sandbox")
 options.add_argument("--disable-gpu")
 options.add_argument("--window-size=1920x1080")
-options.add_experimental_option("prefs", {
-    "download.default_directory": downloads_directory,  # Set the download directory to the Downloads directory
-    "download.prompt_for_download": False,
-    "download.directory_upgrade": True,
-    "safebrowsing.enabled": True
-})
 
 driver = webdriver.Chrome(options=options)
 
