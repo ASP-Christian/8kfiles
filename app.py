@@ -89,16 +89,19 @@ while True:
 driver.quit()
 
 def Summary():
-    # Use service account credentials from GitHub secrets
+    # Parse the service account credentials JSON from the environment variable
+    creds_json = os.getenv('GOOGLE_SERVICE_ACCOUNT_CREDS')
+    creds_dict = json.loads(creds_json)
+
+    # Define the scope
     scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
-    creds = ServiceAccountCredentials.from_json_keyfile_dict(
-        eval(os.getenv('GOOGLE_SERVICE_ACCOUNT_CREDS')), scope)
 
-    # Authorize with Google Sheets API
-    client = gspread.authorize(creds)
+    # Authorize the client
+    credentials = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
+    client = gspread.authorize(credentials)
 
-    # Open the Google Sheets document
-    sheet = client.open("Your Google Sheets Document Name").sheet1
+    # Open the Google Sheets document by name
+    sheet = client.open("8-K 1.05 v1").sheet1
 
     # Initialize a list to store data
     data = []
