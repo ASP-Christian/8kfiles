@@ -1,0 +1,27 @@
+name: Upload to Google Sheets
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          pip install pandas selenium gspread oauth2client
+
+      - name: Set up secrets
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_CREDS }}
+        run: echo "$GOOGLE_APPLICATION_CREDENTIALS" > creds.json
+
+      - name: Run the script
+        run: python app.py
