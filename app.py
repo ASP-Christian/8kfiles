@@ -23,7 +23,7 @@ def initialize_driver():
 
 # Calculate today's date and three days before
 today_date = datetime.now().strftime('%Y-%m-%d')
-three_days_before_date = (datetime.now() - timedelta(days=3)).strftime('%Y-%m-%d')
+three_days_before_date = (datetime.now() - timedelta(days=41)).strftime('%Y-%m-%d')
 
 # Construct the modified website URL
 website = f"https://www.sec.gov/edgar/search/?fbclid=IwAR0QhrfhVCRCfU8p1UERnZGgCvY0Mbydh9W0Oo4YTi4mQ3ti0Juhex6V71s#/q=Cybersecurity&dateRange=custom&category=custom&startdt={three_days_before_date}&enddt={today_date}&forms=8-K"
@@ -122,7 +122,7 @@ with initialize_driver() as driver:
             overall_text_list.append(overall_text)
             # "item 1.05"
             # Check if "Item 1.05" is present in the HTML content
-            if "the" in overall_text.lower():
+            if "item 1.05" in overall_text.lower():
                 # Append data to the list for "Item 1.05"
                 item_105_data.append({
                     'company_name': company_name[index],
