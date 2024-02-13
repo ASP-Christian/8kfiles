@@ -17,10 +17,17 @@ jobs:
 
       - name: Install dependencies
         run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb
           python -m pip install --upgrade pip
           pip install selenium pandas
 
+      - name: Start Xvfb
+        run: Xvfb :99 -screen 0 1920x1080x24 > /dev/null 2>&1 &
+
       - name: Run Python script
+        env:
+          DISPLAY: :99
         run: python app.py
 
       - name: Commit and push changes
