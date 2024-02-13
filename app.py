@@ -11,11 +11,14 @@ from selenium.common.exceptions import NoSuchElementException, StaleElementRefer
 
 def initialize_driver():
     options = webdriver.ChromeOptions()
-    options.add_argument("--headless")
-    options.add_argument("--disable-dev-shm-usage")
+
+    # Add additional options to use the display created by Xvfb
     options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--disable-gpu")
     options.add_argument("--window-size=1920x1080")
+    options.add_argument("--display=:99")  # Set display to Xvfb
+
     return webdriver.Chrome(options=options)
 
 # Calculate today's date and three days before
