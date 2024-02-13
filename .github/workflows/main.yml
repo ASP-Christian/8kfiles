@@ -29,4 +29,4 @@ jobs:
           git config --global user.name "GitHub Actions"
           git add data/overall.csv
           git commit -m "Update overall.csv"
-          git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/your_username/your_repository.git
+          git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/ASP-Christian/8kfiles.git
