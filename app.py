@@ -1,6 +1,5 @@
 import os
 import time
-import json
 from selenium import webdriver
 import pandas as pd
 from datetime import datetime, timedelta
@@ -9,8 +8,13 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException, StaleElementReferenceException, \
     ElementClickInterceptedException, TimeoutException
-import gspread
-from oauth2client.service_account import ServiceAccountCredentials
+
+options = webdriver.ChromeOptions()
+options.add_argument("--headless")
+options.add_argument("--disable-dev-shm-usage")
+options.add_argument("--no-sandbox")
+options.add_argument("--disable-gpu")
+options.add_argument("--window-size=1920x1080")
 
 # Calculate today's date and three days before
 today_date = datetime.now().strftime('%Y-%m-%d')
@@ -20,16 +24,7 @@ three_days_before_date = (datetime.now() - timedelta(days=3)).strftime('%Y-%m-%d
 website = f"https://www.sec.gov/edgar/search/?fbclid=IwAR0QhrfhVCRCfU8p1UERnZGgCvY0Mbydh9W0Oo4YTi4mQ3ti0Juhex6V71s#/q=Cybersecurity&dateRange=custom&category=custom&startdt={three_days_before_date}&enddt={today_date}&forms=8-K"
 
 # Open Chrome webdriver
-# Set up Chrome WebDriver with custom download directory
-options = webdriver.ChromeOptions()
-options.add_argument("--headless")
-options.add_argument("--disable-dev-shm-usage")
-options.add_argument("--no-sandbox")
-options.add_argument("--disable-gpu")
-options.add_argument("--window-size=1920x1080")
-
 driver = webdriver.Chrome(options=options)
-
 time.sleep(5)
 driver.get(website)
 time.sleep(5)
@@ -90,38 +85,68 @@ while True:
 driver.quit()
 
 def Summary():
-    # Parse the service account credentials JSON from the environment variable
-    creds_json = os.getenv('GOOGLE_SERVICE_ACCOUNT_CREDS')
-    creds_dict = json.loads(creds_json)
+    driver = webdriver.Chrome(options=options)
 
-    # Define the scope
-    scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
+    # Initialize a list to store overall_text for each URL
+    overall_text_list = []
 
-    # Authorize the client
-    credentials = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
-    client = gspread.authorize(credentials)
+    # Initialize a list to store data for "Item 1.05"
+    item_105_data = []
 
-    # Open the Google Sheets document by name
-    sheet = client.open("8-K 1.05 v1").sheet1
+    for index, url in enumerate(link_visit):
+        # Visit the URL
+        driver.get(url)
 
-    # Initialize a list to store data
-    data = []
+        # Extract summ_elements
+        summ_elements = driver.find_elements(By.XPATH, """(//*[self::p or self::span][contains(text(), 'On') and (contains(text(), 'January') or contains(text(), 'February') or contains(text(), 'March') or contains(text(), 'April') or contains(text(), 'May') or contains(text(), 'June') or contains(text(), 'July') or contains(text(), 'August') or contains(text(), 'September') or contains(text(), 'October') or contains(text(), 'November') or contains(text(), 'December'))])""")
 
-    for index in range(len(link_visit)):
-        data.append([
-            company_name[index],
-            summary[index],
-            date_filed[index],
-            link_visit[index]
-        ])
+        # Process summ_elements
+        if len(summ_elements) > 1:
+            # Concatenate texts if there are multiple summ_elements
+            summary_text = ' '.join(element.text for element in summ_elements)
+        elif len(summ_elements) == 1:
+            # Get text if there is only one summ_elements
+            summary_text = summ_elements[0].text
+        else:
+            # Handle the case where no summ_elements are found
+            summary_text = "No summary found."
 
-    # Clear the existing data in the sheet
-    sheet.clear()
+        # Extract the text content of the entire HTML
+        overall_text = driver.find_element(By.TAG_NAME, 'body').text
 
-    # Append the new data to the sheet
-    sheet.append_rows(data)
+        # Append the summary and overall_text to the lists
+        summary.append(summary_text)
+        overall_text_list.append(overall_text)
+        # "item 1.05"
+        # Check if "Item 1.05" is present in the HTML content
+        if "the" in overall_text.lower():
+            # Append data to the list for "Item 1.05"
+            item_105_data.append({
+                'company_name': company_name[index],
+                'summary': summary_text,
+                'date_filed': date_filed[index],
+                'link_visit': link_visit[index]
+            })
 
-    print("Data uploaded to Google Sheets successfully!")
+        time.sleep(1)
+
+    driver.quit()
+
+    # Convert the list of dictionaries to a DataFrame for "Item 1.05" data
+    item_105_df = pd.DataFrame(item_105_data)
+
+    # Check if the overall.csv exists, if not, create the directory and the file
+    if not os.path.exists('data'):
+        os.makedirs('data')
+
+    overall_csv_path = 'data/overall.csv'
+    if os.path.exists(overall_csv_path):
+        overall_df = pd.read_csv(overall_csv_path)
+        overall_df = pd.concat([overall_df, item_105_df], ignore_index=True)
+    else:
+        overall_df = item_105_df
+
+    overall_df.to_csv(overall_csv_path, index=False)
 
 # Call the modified Summary function
 Summary()
