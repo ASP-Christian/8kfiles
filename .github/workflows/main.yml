@@ -1,4 +1,4 @@
-name: Run Selenium Script
+name: Scrape 8-k Files Every-day
 
 on:
   schedule:
