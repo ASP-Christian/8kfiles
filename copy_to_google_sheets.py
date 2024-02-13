@@ -1,6 +1,7 @@
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
+import os
 
 # Google Sheets credentials and ID
 scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
