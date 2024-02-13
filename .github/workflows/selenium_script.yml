@@ -1,0 +1,29 @@
+name: Copy CSV Data to Google Sheets
+
+on:
+  workflow_dispatch:
+
+jobs:
+  copy_to_google_sheets:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install gspread oauth2client pandas
+
+    - name: Copy unique data to Google Sheets
+      env:
+        GOOGLE_SERVICE_ACCOUNT_KEY: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
+        GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
+      run: |
+        python copy_to_google_sheets.py
