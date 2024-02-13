@@ -1,8 +1,9 @@
 name: Copy CSV Data to Google Sheets
 
 on:
-  workflow_dispatch:
-
+  schedule:
+    - cron: "30 23 * * *"
+    
 jobs:
   copy_to_google_sheets:
     runs-on: ubuntu-latest
