@@ -1,7 +1,8 @@
 name: Scrape 8-k Files Every-day
 
 on:
-  workflow_dispatch
+  schedule:
+    - cron: "0 23 * * *"
 
 jobs:
   run_script:
