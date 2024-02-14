@@ -58,7 +58,7 @@ with initialize_driver() as driver:
 
             for post_link in post_links:
                 # Get the href attribute before clicking to handle the pop-up window
-                # to_catch = post_link.get_attribute('href')
+                post_link_href = post_link.get_attribute('href')
 
                 # Click on the post link
                 post_link.click()
@@ -150,6 +150,11 @@ with initialize_driver() as driver:
             overall_df = item_105_df
 
         overall_df.to_csv(overall_csv_path, index=False)
+
+        # Write message to daily_report.txt if no 8-K filings with item 1.05 are found
+        if len(item_105_df) == 0:
+            with open('daily_report.txt', 'a') as file:
+                file.write(f"{today_date} has no 8-K filings with Item 1.05 found.\n")
 
     # Call the modified Summary function
     Summary()
