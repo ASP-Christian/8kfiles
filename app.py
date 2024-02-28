@@ -122,7 +122,8 @@ with initialize_driver() as driver:
             overall_text_list.append(overall_text)
             # "item 1.05"
             # Check if "Item 1.05" is present in the HTML content
-            if "item 1.05" in overall_text.lower():
+            # if "item 1.05" in overall_text.lower():
+            if "the" in overall_text.lower():
                 # Append data to the list for "Item 1.05"
                 item_105_data.append({
                     'company_name': company_name[index],
