@@ -1,11 +1,9 @@
 name: Scrape 8-k Files Every-day
 
-# on:
-#   schedule:
-#     - cron: "0 23 * * *"
-
 on:
   workflow_dispatch:
+  schedule:
+    - cron: "0 23 * * *"
 
 jobs:
   run_script:
@@ -39,23 +37,8 @@ jobs:
           DISPLAY: :99
         run: python app.py
 
-      - name: Check if overall.csv has changes
-        id: check_changes
-        run: |
-          git diff --quiet data/overall.csv || echo "changes"
-        continue-on-error: true
-
-      - name: Commit and push changes to overall.csv
-        if: steps.check_changes.outputs.changes == 'changes'
+      - name: Commit changes to overall.csv
         run: |
           git add data/overall.csv
           git commit -m "Update overall.csv"
-          git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/ASP-Christian/8kfiles.git
-
-      - name: Write to daily_report.txt if no data gathered
-        if: steps.check_changes.outputs.changes != 'changes'
-        run: |
-          echo "$(date +"%Y-%m-%d") has no 8-K filings with Item 1.05 found." >> daily_report.txt
-          git add daily_report.txt
-          git commit -m "Update daily_report.txt"
-          git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/ASP-Christian/8kfiles.git
+          git push
