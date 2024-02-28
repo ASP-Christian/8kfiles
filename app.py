@@ -152,10 +152,5 @@ with initialize_driver() as driver:
 
         overall_df.to_csv(overall_csv_path, index=False)
 
-        # Write message to daily_report.txt if no 8-K filings with item 1.05 are found
-        if len(item_105_df) == 0:
-            with open('daily_report.txt', 'a') as file:
-                file.write(f"{today_date} has no 8-K filings with Item 1.05 found.\n")
-
     # Call the modified Summary function
     Summary()
